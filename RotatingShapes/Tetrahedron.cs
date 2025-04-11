@@ -5,7 +5,7 @@ using Silk.NET.Maths;
 
 namespace RotatingShapes
 {
-    public class Tetrahedron : IDisposable
+    public class Tetrahedron : IShape, IDisposable
     {
         private GL _gl;
 

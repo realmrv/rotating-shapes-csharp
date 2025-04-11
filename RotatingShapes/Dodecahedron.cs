@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace RotatingShapes
 {
-    public class Dodecahedron : IDisposable
+    public class Dodecahedron : IShape
     {
         private GL _gl;
 

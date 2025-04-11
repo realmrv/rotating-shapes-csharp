@@ -5,6 +5,7 @@ using System.Numerics;
 using System;
 using Silk.NET.Maths;
 using System.IO; // Needed for loading shaders from files
+using System.Collections.Generic; // Added for List<T>
 
 namespace RotatingShapes
 {
@@ -17,14 +18,12 @@ namespace RotatingShapes
         // Removed Cube data fields (moved to Cube class)
         // OpenGL object handles are now in Cube class
 
-        // Shaders & Cube Instance
+        // Shaders & Shape List
         private Shader? _faceShaderProgram;
         private Shader? _edgeShaderProgram;
-        private Cube? _cube;
-        private Tetrahedron? _tetrahedron;
-        private Octahedron? _octahedron;
-        private Icosahedron? _icosahedron;
-        private Dodecahedron? _dodecahedron; // Added Dodecahedron instance
+        // Use a list of shapes instead of individual fields
+        private List<IShape> _shapes = new List<IShape>();
+        // Removed individual shape fields (_cube, _tetrahedron, etc.)
 
         // Matrices (View and Projection are managed by Renderer)
         private Matrix4x4 _viewMatrix;
@@ -92,20 +91,13 @@ namespace RotatingShapes
                 return;
             }
 
-            // Create Cube instance
-            _cube = new Cube(_gl!, _faceShaderProgram!, _edgeShaderProgram!);
-
-            // Create Tetrahedron instance
-            _tetrahedron = new Tetrahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!);
-
-            // Create Octahedron instance
-            _octahedron = new Octahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!);
-
-            // Create Icosahedron instance
-            _icosahedron = new Icosahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!);
-
-            // Create Dodecahedron instance
-            _dodecahedron = new Dodecahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!);
+            // Create Shape instances and add them to the list
+            _shapes.Add(new Dodecahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!)); // Far-left
+            _shapes.Add(new Icosahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!));  // Mid-left
+            _shapes.Add(new Octahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!));   // Center
+            _shapes.Add(new Cube(_gl!, _faceShaderProgram!, _edgeShaderProgram!));          // Mid-right
+            _shapes.Add(new Tetrahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!)); // Far-right
+            // Removed individual shape creation
 
             // Setup initial matrices (View and Projection)
             _viewMatrix = Matrix4x4.CreateLookAt(new Vector3(0.0f, 0.0f, 9.0f), new Vector3(0.0f, 0.0f, 0.0f), Vector3.UnitY);
@@ -114,17 +106,12 @@ namespace RotatingShapes
 
         private void OnUpdate(double deltaTime)
         {
-            // Update the cube (handles its own rotation)
-            _cube?.Update(deltaTime);
-            // Update the tetrahedron
-            _tetrahedron?.Update(deltaTime);
-            // Update the octahedron
-            _octahedron?.Update(deltaTime);
-            // Update the icosahedron
-            _icosahedron?.Update(deltaTime);
-            // Update the dodecahedron
-            _dodecahedron?.Update(deltaTime);
-            // Removed direct angle and model matrix update
+            // Update all shapes in the list
+            foreach (var shape in _shapes)
+            {
+                shape.Update(deltaTime);
+            }
+            // Removed individual update calls
         }
 
         private unsafe void OnRender(double deltaTime)
@@ -135,16 +122,11 @@ namespace RotatingShapes
             // Depth test is enabled, but disable depth writes for transparency
             _gl.DepthMask(false);
 
-            // Render the cube
-            _cube?.Render(_viewMatrix, _projectionMatrix);
-            // Render the tetrahedron
-            _tetrahedron?.Render(_viewMatrix, _projectionMatrix);
-            // Render the octahedron
-            _octahedron?.Render(_viewMatrix, _projectionMatrix);
-            // Render the icosahedron
-            _icosahedron?.Render(_viewMatrix, _projectionMatrix);
-            // Render the dodecahedron
-            _dodecahedron?.Render(_viewMatrix, _projectionMatrix);
+            // Render all shapes in the list
+            foreach (var shape in _shapes)
+            {
+                shape.Render(_viewMatrix, _projectionMatrix);
+            }
 
             // Re-enable depth writes for any subsequent opaque rendering (or just good practice)
             _gl.DepthMask(true);
@@ -175,18 +157,13 @@ namespace RotatingShapes
 
         private void OnClose()
         {
-            // Dispose Cube Resources
-            _cube?.Dispose(); // Dispose the cube's resources
-            // Dispose Tetrahedron Resources
-            _tetrahedron?.Dispose();
-            // Dispose Octahedron Resources
-            _octahedron?.Dispose();
-            // Dispose Icosahedron Resources
-            _icosahedron?.Dispose();
-            // Dispose Dodecahedron Resources
-            _dodecahedron?.Dispose();
-
-            // --- Removed direct disposal of cube VBOs/VAOs/EBOs ---
+            // Dispose all shapes in the list
+            foreach (var shape in _shapes)
+            {
+                shape.Dispose();
+            }
+            _shapes.Clear(); // Clear the list
+            // Removed individual dispose calls
 
             // Dispose Shaders and other resources
             _faceShaderProgram?.Dispose();

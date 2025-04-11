@@ -5,7 +5,7 @@ using Silk.NET.Maths; // Required for Scalar.DegreesToRadians
 
 namespace RotatingShapes
 {
-    public class Cube : IDisposable
+    public class Cube : IShape, IDisposable
     {
         private GL _gl;
 
@@ -50,7 +50,7 @@ namespace RotatingShapes
         private Shader _edgeShaderProgram;
 
         // Transformations
-        public Matrix4x4 ModelMatrix { get; set; } = Matrix4x4.Identity;
+        public Matrix4x4 ModelMatrix { get; private set; } = Matrix4x4.Identity;
         private float _angle = 0.0f;
         // Position this one mid-right
         private Vector3 _position = new Vector3(1.8f, 0.0f, 0.0f);
