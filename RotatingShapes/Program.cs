@@ -1,17 +1,15 @@
-﻿using System;
+﻿namespace RotatingShapes;
 
-namespace RotatingShapes
+internal class Program
 {
-    class Program
+    private static void Main(string[] args)
     {
-        static void Main(string[] args)
+        // Create and run the renderer
+        using (var renderer = new Renderer())
         {
-            // Create and run the renderer
-            using (var renderer = new Renderer())
-            {
-                renderer.Run();
-            }
-            Console.WriteLine("Application closed.");
+            renderer.Run();
         }
+
+        Console.WriteLine("Application closed.");
     }
 }
