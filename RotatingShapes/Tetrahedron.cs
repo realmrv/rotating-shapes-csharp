@@ -10,7 +10,7 @@ namespace RotatingShapes
         private GL _gl;
 
         // Geometry Data (Regular Tetrahedron centered at origin, scaled)
-        private const float TetraScale = 0.5f; // Scale factor
+        private const float TetraScale = 0.7f; // Adjusted scale
         private static readonly Vector3 v0 = Vector3.Normalize(new Vector3(1, 1, 1)) * TetraScale;
         private static readonly Vector3 v1 = Vector3.Normalize(new Vector3(1, -1, -1)) * TetraScale;
         private static readonly Vector3 v2 = Vector3.Normalize(new Vector3(-1, 1, -1)) * TetraScale;
@@ -76,7 +76,7 @@ namespace RotatingShapes
         // Transformations
         public Matrix4x4 ModelMatrix { get; private set; } = Matrix4x4.Identity;
         private float _angle = 0.0f;
-        private Vector3 _position = new Vector3(1.5f, -1.0f, 0.0f); // Changed Y to -1.0f
+        private Vector3 _position = new Vector3(3.6f, 0.0f, 0.0f);
 
         public unsafe Tetrahedron(GL gl, Shader faceShader, Shader edgeShader)
         {
@@ -122,9 +122,10 @@ namespace RotatingShapes
         public void Update(double deltaTime)
         {
             // Different rotation speed and axis
-            _angle += (float)(deltaTime * -30.0f); // Rotate slower and in opposite direction
-            ModelMatrix = Matrix4x4.CreateRotationZ(Scalar.DegreesToRadians(_angle * 0.5f)) * // Rotate on Z
-                          Matrix4x4.CreateRotationX(Scalar.DegreesToRadians(_angle)) *      // Rotate on X
+            _angle += (float)(deltaTime * 40.0f); // Standard speed
+            // Standard rotation
+            ModelMatrix = Matrix4x4.CreateRotationY(Scalar.DegreesToRadians(_angle)) *
+                          Matrix4x4.CreateRotationX(Scalar.DegreesToRadians(_angle * 0.7f)) *
                           Matrix4x4.CreateTranslation(_position); // Apply position offset
         }
 

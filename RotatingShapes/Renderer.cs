@@ -23,7 +23,8 @@ namespace RotatingShapes
         private Cube? _cube;
         private Tetrahedron? _tetrahedron;
         private Octahedron? _octahedron;
-        private Icosahedron? _icosahedron; // Added Icosahedron instance
+        private Icosahedron? _icosahedron;
+        private Dodecahedron? _dodecahedron; // Added Dodecahedron instance
 
         // Matrices (View and Projection are managed by Renderer)
         private Matrix4x4 _viewMatrix;
@@ -103,8 +104,11 @@ namespace RotatingShapes
             // Create Icosahedron instance
             _icosahedron = new Icosahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!);
 
+            // Create Dodecahedron instance
+            _dodecahedron = new Dodecahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!);
+
             // Setup initial matrices (View and Projection)
-            _viewMatrix = Matrix4x4.CreateLookAt(new Vector3(0.0f, 0.0f, 5.0f), Vector3.Zero, Vector3.UnitY);
+            _viewMatrix = Matrix4x4.CreateLookAt(new Vector3(0.0f, 0.0f, 9.0f), new Vector3(0.0f, 0.0f, 0.0f), Vector3.UnitY);
             SetupProjectionMatrix(_window!.Size);
         }
 
@@ -118,6 +122,8 @@ namespace RotatingShapes
             _octahedron?.Update(deltaTime);
             // Update the icosahedron
             _icosahedron?.Update(deltaTime);
+            // Update the dodecahedron
+            _dodecahedron?.Update(deltaTime);
             // Removed direct angle and model matrix update
         }
 
@@ -137,6 +143,8 @@ namespace RotatingShapes
             _octahedron?.Render(_viewMatrix, _projectionMatrix);
             // Render the icosahedron
             _icosahedron?.Render(_viewMatrix, _projectionMatrix);
+            // Render the dodecahedron
+            _dodecahedron?.Render(_viewMatrix, _projectionMatrix);
 
             // Re-enable depth writes for any subsequent opaque rendering (or just good practice)
             _gl.DepthMask(true);
@@ -175,6 +183,8 @@ namespace RotatingShapes
             _octahedron?.Dispose();
             // Dispose Icosahedron Resources
             _icosahedron?.Dispose();
+            // Dispose Dodecahedron Resources
+            _dodecahedron?.Dispose();
 
             // --- Removed direct disposal of cube VBOs/VAOs/EBOs ---
 

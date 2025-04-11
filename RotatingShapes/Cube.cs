@@ -10,10 +10,15 @@ namespace RotatingShapes
         private GL _gl;
 
         // Geometry Data
+        private const float CubeScale = 0.6f; // Adjusted scale
         private static readonly Vector3[] _vertices =
         {
-            new Vector3(-0.5f, -0.5f,  0.5f), new Vector3( 0.5f, -0.5f,  0.5f), new Vector3( 0.5f,  0.5f,  0.5f), new Vector3(-0.5f,  0.5f,  0.5f),
-            new Vector3(-0.5f, -0.5f, -0.5f), new Vector3( 0.5f, -0.5f, -0.5f), new Vector3( 0.5f,  0.5f, -0.5f), new Vector3(-0.5f,  0.5f, -0.5f)
+            // Front face
+            new Vector3(-0.5f, -0.5f,  0.5f) * CubeScale, new Vector3( 0.5f, -0.5f,  0.5f) * CubeScale,
+            new Vector3( 0.5f,  0.5f,  0.5f) * CubeScale, new Vector3(-0.5f,  0.5f,  0.5f) * CubeScale,
+            // Back face
+            new Vector3(-0.5f, -0.5f, -0.5f) * CubeScale, new Vector3( 0.5f, -0.5f, -0.5f) * CubeScale,
+            new Vector3( 0.5f,  0.5f, -0.5f) * CubeScale, new Vector3(-0.5f,  0.5f, -0.5f) * CubeScale
         };
         private static readonly Vector4[] _colors =
         {
@@ -47,8 +52,8 @@ namespace RotatingShapes
         // Transformations
         public Matrix4x4 ModelMatrix { get; set; } = Matrix4x4.Identity;
         private float _angle = 0.0f;
-        // Position this one top-center
-        private Vector3 _position = new Vector3(0.0f, 1.0f, 0.0f);
+        // Position this one mid-right
+        private Vector3 _position = new Vector3(1.8f, 0.0f, 0.0f);
 
         public unsafe Cube(GL gl, Shader faceShader, Shader edgeShader)
         {
@@ -93,8 +98,8 @@ namespace RotatingShapes
 
         public void Update(double deltaTime)
         {
-            _angle += (float)(deltaTime * 50.0f);
-            // Model matrix is rotation then translation
+            _angle += (float)(deltaTime * 40.0f); // Standard speed
+            // Standard rotation
             ModelMatrix = Matrix4x4.CreateRotationY(Scalar.DegreesToRadians(_angle)) *
                           Matrix4x4.CreateRotationX(Scalar.DegreesToRadians(_angle * 0.7f)) *
                           Matrix4x4.CreateTranslation(_position);

@@ -2,84 +2,118 @@ using Silk.NET.OpenGL;
 using System.Numerics;
 using System;
 using Silk.NET.Maths;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RotatingShapes
 {
-    public class Icosahedron : IDisposable
+    public class Dodecahedron : IDisposable
     {
         private GL _gl;
 
-        // Geometry Data (Regular Icosahedron centered at origin)
-        private const float IcoScale = 0.6f; // Adjusted scale
+        // Geometry Data (Regular Dodecahedron centered at origin)
+        private const float DodecaScale = 0.5f; // Adjusted scale
         private static readonly float Phi = (1.0f + MathF.Sqrt(5.0f)) / 2.0f; // Golden ratio
+        private static readonly float InvPhi = 1.0f / Phi; // 1 / Phi = Phi - 1
 
-        private static readonly Vector3[] _vertices =
+        private static readonly Vector3[] _vertices = // 20 Vertices
         {
-            new Vector3(-1,  Phi,  0) * IcoScale, new Vector3( 1,  Phi,  0) * IcoScale, new Vector3(-1, -Phi,  0) * IcoScale, new Vector3( 1, -Phi,  0) * IcoScale,
-            new Vector3( 0, -1,  Phi) * IcoScale, new Vector3( 0,  1,  Phi) * IcoScale, new Vector3( 0, -1, -Phi) * IcoScale, new Vector3( 0,  1, -Phi) * IcoScale,
-            new Vector3( Phi,  0, -1) * IcoScale, new Vector3( Phi,  0,  1) * IcoScale, new Vector3(-Phi,  0, -1) * IcoScale, new Vector3(-Phi,  0,  1) * IcoScale
+            // Cube corners
+            new Vector3( 1,  1,  1) * DodecaScale,
+            new Vector3( 1,  1, -1) * DodecaScale,
+            new Vector3( 1, -1,  1) * DodecaScale,
+            new Vector3( 1, -1, -1) * DodecaScale,
+            new Vector3(-1,  1,  1) * DodecaScale,
+            new Vector3(-1,  1, -1) * DodecaScale,
+            new Vector3(-1, -1,  1) * DodecaScale,
+            new Vector3(-1, -1, -1) * DodecaScale,
+            // Golden ratio points on axes planes
+            new Vector3( 0,  InvPhi,  Phi) * DodecaScale,
+            new Vector3( 0,  InvPhi, -Phi) * DodecaScale,
+            new Vector3( 0, -InvPhi,  Phi) * DodecaScale,
+            new Vector3( 0, -InvPhi, -Phi) * DodecaScale,
+            new Vector3( InvPhi,  Phi,  0) * DodecaScale,
+            new Vector3( InvPhi, -Phi,  0) * DodecaScale,
+            new Vector3(-InvPhi,  Phi,  0) * DodecaScale,
+            new Vector3(-InvPhi, -Phi,  0) * DodecaScale,
+            new Vector3( Phi,  0,  InvPhi) * DodecaScale,
+            new Vector3( Phi,  0, -InvPhi) * DodecaScale,
+            new Vector3(-Phi,  0,  InvPhi) * DodecaScale,
+            new Vector3(-Phi,  0, -InvPhi) * DodecaScale
         };
 
-        // Different colors (e.g., White/Gray gradient, semi-transparent)
-        private static readonly Vector4[] _colors;
+        // Distinct colors for vertices
+        private static readonly Vector4[] _colors = new Vector4[20];
 
-        // Indices for drawing the faces (20 triangles)
-        private static readonly uint[] _faceIndices =
-        {
-            0, 11, 5,  0, 5, 1,   0, 1, 7,   0, 7, 10,  0, 10, 11, // 5 faces around point 0
-            1, 5, 9,   5, 11, 4,  11, 10, 2,  10, 7, 6,  7, 1, 8,  // 5 adjacent faces
-            3, 9, 4,   3, 4, 2,   3, 2, 6,   3, 6, 8,   3, 8, 9,  // 5 faces around point 3
-            4, 9, 5,   2, 4, 11,  6, 2, 10,  8, 6, 7,   9, 8, 1   // 5 adjacent faces
-        };
+        // Indices for drawing the faces (12 pentagons -> 36 triangles)
+        private static readonly uint[] _faceIndices;
 
         // Indices for drawing the edges (30 lines)
         private static readonly uint[] _edgeIndices;
 
-        // Combined static constructor
-        static Icosahedron()
+        // Static constructor to initialize geometry
+        static Dodecahedron()
         {
-            // 1. Normalize vertices
-            for (int i = 0; i < _vertices.Length; i++)
+            // Initialize Colors (Generate programmatically)
+            for (int i = 0; i < _colors.Length; i++)
             {
-                _vertices[i] = Vector3.Normalize(_vertices[i]) * IcoScale;
+                float hue = (360f * i / _colors.Length) % 360f;
+                _colors[i] = HsvToRgb(hue, 0.8f, 0.9f, 0.9f);
             }
 
-            // 2. Assign distinct colors to each vertex
-            _colors = new Vector4[]
-            {
-                new Vector4(1.0f, 0.0f, 0.0f, 0.85f), // Red
-                new Vector4(0.0f, 1.0f, 0.0f, 0.85f), // Green
-                new Vector4(0.0f, 0.0f, 1.0f, 0.85f), // Blue
-                new Vector4(1.0f, 1.0f, 0.0f, 0.85f), // Yellow
-                new Vector4(1.0f, 0.0f, 1.0f, 0.85f), // Magenta
-                new Vector4(0.0f, 1.0f, 1.0f, 0.85f), // Cyan
-                new Vector4(1.0f, 0.5f, 0.0f, 0.85f), // Orange
-                new Vector4(0.5f, 0.0f, 1.0f, 0.85f), // Purple
-                new Vector4(0.0f, 0.5f, 1.0f, 0.85f), // Sky Blue
-                new Vector4(0.5f, 1.0f, 0.0f, 0.85f), // Lime Green
-                new Vector4(1.0f, 0.0f, 0.5f, 0.85f), // Pink
-                new Vector4(0.0f, 1.0f, 0.5f, 0.85f)  // Teal
+            // Define the 12 pentagonal faces using vertex indices
+            _faceIndices = new uint[] {
+                  0,  8,  4,    0,  4, 14,    0, 14, 12, // Face 1
+                  0, 12,  1,    0,  1, 17,    0, 17, 16, // Face 2
+                  0, 16,  2,    0,  2, 10,    0, 10,  8, // Face 3
+                  1, 12, 14,    1, 14,  5,    1,  5,  9, // Face 4
+                  1,  9, 11,    1, 11,  3,    1,  3, 17, // Face 5
+                  2, 13, 15,    2, 15,  6,    2,  6, 10, // Face 6
+                  2, 16, 17,    2, 17,  3,    2,  3, 13, // Face 7
+                  3, 11,  7,    3,  7, 15,    3, 15, 13, // Face 8
+                  4,  8, 10,    4, 10,  6,    4,  6, 18, // Face 9
+                  4, 18, 19,    4, 19,  5,    4,  5, 14, // Face 10
+                  5,  9, 11,    5, 11,  7,    5,  7, 19, // Face 11
+                  6, 15,  7,    6,  7, 19,    6, 19, 18  // Face 12
             };
 
-            // 3. Generate edges from faces (avoid duplicates)
-            var edges = new System.Collections.Generic.HashSet<Tuple<uint, uint>>();
+            // Generate edge list from the pre-triangulated faces
+            var edges = new HashSet<Tuple<uint, uint>>();
             for (int i = 0; i < _faceIndices.Length; i += 3)
             {
-                uint i1 = _faceIndices[i];
-                uint i2 = _faceIndices[i + 1];
-                uint i3 = _faceIndices[i + 2];
-                AddEdge(edges, i1, i2);
-                AddEdge(edges, i2, i3);
-                AddEdge(edges, i3, i1);
+                // Add edges from the triangle definition
+                AddEdge(edges, _faceIndices[i], _faceIndices[i + 1]);
+                AddEdge(edges, _faceIndices[i + 1], _faceIndices[i + 2]);
+                AddEdge(edges, _faceIndices[i + 2], _faceIndices[i]);
             }
             _edgeIndices = edges.SelectMany(t => new[] { t.Item1, t.Item2 }).ToArray();
         }
 
-        private static void AddEdge(System.Collections.Generic.HashSet<Tuple<uint, uint>> edges, uint u, uint v)
+        private static void AddEdge(HashSet<Tuple<uint, uint>> edges, uint u, uint v)
         {
-            // Store edge with smaller index first to ensure uniqueness
             if (u > v) { var temp = u; u = v; v = temp; }
             edges.Add(Tuple.Create(u, v));
+        }
+
+        // Simple HSV to RGB conversion (for color variety)
+        private static Vector4 HsvToRgb(float h, float s, float v, float a)
+        {
+            float r = 0, g = 0, b = 0;
+            int i = (int)MathF.Floor(h / 60.0f) % 6;
+            float f = h / 60.0f - MathF.Floor(h / 60.0f);
+            float p = v * (1 - s);
+            float q = v * (1 - f * s);
+            float t = v * (1 - (1 - f) * s);
+            switch (i)
+            {
+                case 0: r = v; g = t; b = p; break;
+                case 1: r = q; g = v; b = p; break;
+                case 2: r = p; g = v; b = t; break;
+                case 3: r = p; g = q; b = v; break;
+                case 4: r = t; g = p; b = v; break;
+                case 5: r = v; g = p; b = q; break;
+            }
+            return new Vector4(r, g, b, a);
         }
 
         // OpenGL Handles
@@ -98,10 +132,10 @@ namespace RotatingShapes
         // Transformations
         public Matrix4x4 ModelMatrix { get; private set; } = Matrix4x4.Identity;
         private float _angle = 0.0f;
-        // Position this one mid-left
-        private Vector3 _position = new Vector3(-1.8f, 0.0f, 0.0f);
+        // Position this one far-left
+        private Vector3 _position = new Vector3(-3.6f, 0.0f, 0.0f);
 
-        public unsafe Icosahedron(GL gl, Shader faceShader, Shader edgeShader)
+        public unsafe Dodecahedron(GL gl, Shader faceShader, Shader edgeShader)
         {
             _gl = gl;
             _faceShaderProgram = faceShader;
@@ -144,7 +178,6 @@ namespace RotatingShapes
 
         public void Update(double deltaTime)
         {
-            // Different rotation
             _angle += (float)(deltaTime * 40.0f); // Standard speed
             // Standard rotation
             ModelMatrix = Matrix4x4.CreateRotationY(Scalar.DegreesToRadians(_angle)) *
@@ -167,7 +200,7 @@ namespace RotatingShapes
             _edgeShaderProgram.SetUniform("model", ModelMatrix);
             _edgeShaderProgram.SetUniform("view", viewMatrix);
             _edgeShaderProgram.SetUniform("projection", projectionMatrix);
-            _edgeShaderProgram.SetUniform("edgeColor", new Vector4(1.0f, 1.0f, 1.0f, 1.0f)); // Changed edge color to white
+            _edgeShaderProgram.SetUniform("edgeColor", new Vector4(1.0f, 1.0f, 1.0f, 1.0f)); // Changed to White edges
             _gl.BindVertexArray(_edgeVao);
             _gl.DrawElements(PrimitiveType.Lines, (uint)_edgeIndices.Length, DrawElementsType.UnsignedInt, (void*)0);
 

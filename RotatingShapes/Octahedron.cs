@@ -10,7 +10,7 @@ namespace RotatingShapes
         private GL _gl;
 
         // Geometry Data (Regular Octahedron centered at origin)
-        private const float OctaScale = 0.6f; // Scale factor to be similar size to others
+        private const float OctaScale = 0.6f; // Kept scale factor
         private static readonly Vector3[] _vertices =
         {
             new Vector3( 0.0f,  OctaScale,  0.0f), // Top (0)
@@ -79,8 +79,8 @@ namespace RotatingShapes
         // Transformations
         public Matrix4x4 ModelMatrix { get; private set; } = Matrix4x4.Identity;
         private float _angle = 0.0f;
-        // Position this one bottom-left
-        private Vector3 _position = new Vector3(-1.5f, -1.0f, 0.0f);
+        // Position this one center-center (origin)
+        private Vector3 _position = new Vector3(0.0f, 0.0f, 0.0f);
 
         public unsafe Octahedron(GL gl, Shader faceShader, Shader edgeShader)
         {
@@ -132,9 +132,10 @@ namespace RotatingShapes
         public void Update(double deltaTime)
         {
             // Yet another rotation style
-            _angle += (float)(deltaTime * 40.0f);
-            ModelMatrix = Matrix4x4.CreateRotationX(Scalar.DegreesToRadians(_angle * 0.3f)) *
-                          Matrix4x4.CreateRotationZ(Scalar.DegreesToRadians(_angle)) *
+            _angle += (float)(deltaTime * 40.0f); // Standard speed
+            // Standard rotation
+            ModelMatrix = Matrix4x4.CreateRotationY(Scalar.DegreesToRadians(_angle)) *
+                          Matrix4x4.CreateRotationX(Scalar.DegreesToRadians(_angle * 0.7f)) *
                           Matrix4x4.CreateTranslation(_position); // Apply position offset
         }
 
