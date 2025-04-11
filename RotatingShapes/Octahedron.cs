@@ -79,8 +79,8 @@ namespace RotatingShapes
         // Transformations
         public Matrix4x4 ModelMatrix { get; private set; } = Matrix4x4.Identity;
         private float _angle = 0.0f;
-        // Position this one to the left
-        private Vector3 _position = new Vector3(-1.5f, 0.0f, 0.0f);
+        // Position this one bottom-left
+        private Vector3 _position = new Vector3(-1.5f, -1.0f, 0.0f);
 
         public unsafe Octahedron(GL gl, Shader faceShader, Shader edgeShader)
         {

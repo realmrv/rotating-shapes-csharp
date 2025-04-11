@@ -22,7 +22,8 @@ namespace RotatingShapes
         private Shader? _edgeShaderProgram;
         private Cube? _cube;
         private Tetrahedron? _tetrahedron;
-        private Octahedron? _octahedron; // Added Octahedron instance
+        private Octahedron? _octahedron;
+        private Icosahedron? _icosahedron; // Added Icosahedron instance
 
         // Matrices (View and Projection are managed by Renderer)
         private Matrix4x4 _viewMatrix;
@@ -35,7 +36,7 @@ namespace RotatingShapes
         {
             var options = WindowOptions.Default;
             options.Size = new Vector2D<int>(1280, 720);
-            options.Title = "Rotating Cube (Refactored)";
+            options.Title = "Rotating Shapes";
             options.API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.ForwardCompatible, new APIVersion(3, 3));
 
             _window = Window.Create(options);
@@ -99,6 +100,9 @@ namespace RotatingShapes
             // Create Octahedron instance
             _octahedron = new Octahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!);
 
+            // Create Icosahedron instance
+            _icosahedron = new Icosahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!);
+
             // Setup initial matrices (View and Projection)
             _viewMatrix = Matrix4x4.CreateLookAt(new Vector3(0.0f, 0.0f, 5.0f), Vector3.Zero, Vector3.UnitY);
             SetupProjectionMatrix(_window!.Size);
@@ -112,6 +116,8 @@ namespace RotatingShapes
             _tetrahedron?.Update(deltaTime);
             // Update the octahedron
             _octahedron?.Update(deltaTime);
+            // Update the icosahedron
+            _icosahedron?.Update(deltaTime);
             // Removed direct angle and model matrix update
         }
 
@@ -129,6 +135,8 @@ namespace RotatingShapes
             _tetrahedron?.Render(_viewMatrix, _projectionMatrix);
             // Render the octahedron
             _octahedron?.Render(_viewMatrix, _projectionMatrix);
+            // Render the icosahedron
+            _icosahedron?.Render(_viewMatrix, _projectionMatrix);
 
             // Re-enable depth writes for any subsequent opaque rendering (or just good practice)
             _gl.DepthMask(true);
@@ -165,6 +173,8 @@ namespace RotatingShapes
             _tetrahedron?.Dispose();
             // Dispose Octahedron Resources
             _octahedron?.Dispose();
+            // Dispose Icosahedron Resources
+            _icosahedron?.Dispose();
 
             // --- Removed direct disposal of cube VBOs/VAOs/EBOs ---
 

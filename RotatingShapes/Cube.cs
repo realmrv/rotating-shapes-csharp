@@ -47,7 +47,8 @@ namespace RotatingShapes
         // Transformations
         public Matrix4x4 ModelMatrix { get; set; } = Matrix4x4.Identity;
         private float _angle = 0.0f;
-        // No position offset needed, cube is centered at origin by default.
+        // Position this one top-center
+        private Vector3 _position = new Vector3(0.0f, 1.0f, 0.0f);
 
         public unsafe Cube(GL gl, Shader faceShader, Shader edgeShader)
         {
@@ -93,9 +94,10 @@ namespace RotatingShapes
         public void Update(double deltaTime)
         {
             _angle += (float)(deltaTime * 50.0f);
-            // Model matrix is just rotation, as cube is centered at origin
+            // Model matrix is rotation then translation
             ModelMatrix = Matrix4x4.CreateRotationY(Scalar.DegreesToRadians(_angle)) *
-                          Matrix4x4.CreateRotationX(Scalar.DegreesToRadians(_angle * 0.7f));
+                          Matrix4x4.CreateRotationX(Scalar.DegreesToRadians(_angle * 0.7f)) *
+                          Matrix4x4.CreateTranslation(_position);
         }
 
         public unsafe void Render(Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix)

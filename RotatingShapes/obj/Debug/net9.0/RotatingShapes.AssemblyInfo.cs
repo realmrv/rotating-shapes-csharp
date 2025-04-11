@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RotatingShapes")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b16512e744d6ff4dc9f81daad547aa30cea5e13")]
 [assembly: System.Reflection.AssemblyProductAttribute("RotatingShapes")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RotatingShapes")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
