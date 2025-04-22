@@ -3,10 +3,16 @@ using Silk.NET.OpenGL;
 
 namespace RotatingShapes;
 
+/// <summary>
+///     Helper class for loading and managing OpenGL shaders.
+/// </summary>
 public class Shader : IDisposable
 {
     private readonly GL _gl;
 
+    /// <summary>
+    ///     Constructs a Shader instance, compiling and linking the shaders.
+    /// </summary>
     public Shader(GL gl, string vertexSource, string fragmentSource)
     {
         _gl = gl;
@@ -40,8 +46,16 @@ public class Shader : IDisposable
         _gl.DeleteProgram(Handle);
     }
 
+    /// <summary>
+    ///     Loads a shader program from vertex and fragment shader files.
+    ///     Throws FileNotFoundException if a file is missing.
+    /// </summary>
     public static Shader LoadFromFile(GL gl, string vertexPath, string fragmentPath)
     {
+        if (!File.Exists(vertexPath))
+            throw new FileNotFoundException($"Vertex shader file not found: {vertexPath}");
+        if (!File.Exists(fragmentPath))
+            throw new FileNotFoundException($"Fragment shader file not found: {fragmentPath}");
         var vertexSource = File.ReadAllText(vertexPath);
         var fragmentSource = File.ReadAllText(fragmentPath);
         return new Shader(gl, vertexSource, fragmentSource);
@@ -76,7 +90,9 @@ public class Shader : IDisposable
         return location;
     }
 
-    // Convenience methods for setting uniforms (add more types as needed)
+    /// <summary>
+    ///     Sets a uniform matrix4x4 value in the shader.
+    /// </summary>
     public void SetUniform(string name, Matrix4x4 value)
     {
         var location = GetUniformLocation(name);
@@ -88,6 +104,9 @@ public class Shader : IDisposable
             }
     }
 
+    /// <summary>
+    ///     Sets a uniform vector4 value in the shader.
+    /// </summary>
     public void SetUniform(string name, Vector4 value)
     {
         var location = GetUniformLocation(name);

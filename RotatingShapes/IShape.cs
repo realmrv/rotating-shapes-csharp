@@ -24,6 +24,4 @@ public interface IShape : IDisposable
     /// <param name="viewMatrix">The camera view matrix.</param>
     /// <param name="projectionMatrix">The camera projection matrix.</param>
     void Render(Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix);
-
-    // Dispose method is inherited from IDisposable
 }

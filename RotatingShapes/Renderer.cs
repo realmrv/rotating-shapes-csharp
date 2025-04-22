@@ -9,6 +9,9 @@ using Silk.NET.Windowing;
 
 namespace RotatingShapes;
 
+/// <summary>
+///     Manages the main window, OpenGL context, input, shaders, and the main render loop.
+/// </summary>
 public class Renderer : IDisposable
 {
     private Shader? _edgeShaderProgram;
@@ -58,6 +61,9 @@ public class Renderer : IDisposable
         // _window?.Dispose(); // Let Silk.NET handle window disposal
     }
 
+    /// <summary>
+    ///     Main entry point to run the render loop.
+    /// </summary>
     public void Run()
     {
         _window?.Run();
@@ -93,11 +99,16 @@ public class Renderer : IDisposable
             _faceShaderProgram = Shader.LoadFromFile(_gl!, faceVertPath, faceFragPath);
             _edgeShaderProgram = Shader.LoadFromFile(_gl!, edgeVertPath, edgeFragPath);
         }
+        catch (FileNotFoundException ex)
+        {
+            Console.WriteLine($"Shader file not found: {ex.Message}");
+            _window?.Close();
+            return;
+        }
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading shaders: {ex.Message}");
-            // Handle the error appropriately, e.g., close the window or use fallback shaders
-            _window?.Close(); // Close if shaders failed to load
+            _window?.Close();
             return;
         }
 
