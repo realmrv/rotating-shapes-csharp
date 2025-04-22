@@ -53,4 +53,64 @@ public class GeometryTests
         var vertices = (Vector3[])field!.GetValue(null)!;
         Assert.Equal(20, vertices.Length);
     }
+
+    [Fact]
+    public void Cube_FaceIndices_AreValid()
+    {
+        var type = typeof(Cube);
+        var fieldVertices = type.GetField("_vertices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var fieldIndices = type.GetField("_faceIndices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var vertices = (Vector3[])fieldVertices!.GetValue(null)!;
+        var indices = (uint[])fieldIndices!.GetValue(null)!;
+        foreach (var idx in indices)
+            Assert.InRange<uint>(idx, 0, (uint)(vertices.Length - 1));
+    }
+
+    [Fact]
+    public void Tetrahedron_FaceIndices_AreValid()
+    {
+        var type = typeof(Tetrahedron);
+        var fieldVertices = type.GetField("_vertices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var fieldIndices = type.GetField("_faceIndices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var vertices = (Vector3[])fieldVertices!.GetValue(null)!;
+        var indices = (uint[])fieldIndices!.GetValue(null)!;
+        foreach (var idx in indices)
+            Assert.InRange<uint>(idx, 0, (uint)(vertices.Length - 1));
+    }
+
+    [Fact]
+    public void Octahedron_FaceIndices_AreValid()
+    {
+        var type = typeof(Octahedron);
+        var fieldVertices = type.GetField("_vertices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var fieldIndices = type.GetField("_faceIndices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var vertices = (Vector3[])fieldVertices!.GetValue(null)!;
+        var indices = (uint[])fieldIndices!.GetValue(null)!;
+        foreach (var idx in indices)
+            Assert.InRange<uint>(idx, 0, (uint)(vertices.Length - 1));
+    }
+
+    [Fact]
+    public void Icosahedron_FaceIndices_AreValid()
+    {
+        var type = typeof(Icosahedron);
+        var fieldVertices = type.GetField("_vertices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var fieldIndices = type.GetField("_faceIndices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var vertices = (Vector3[])fieldVertices!.GetValue(null)!;
+        var indices = (uint[])fieldIndices!.GetValue(null)!;
+        foreach (var idx in indices)
+            Assert.InRange<uint>(idx, 0, (uint)(vertices.Length - 1));
+    }
+
+    [Fact]
+    public void Dodecahedron_FaceIndices_AreValid()
+    {
+        var type = typeof(Dodecahedron);
+        var fieldVertices = type.GetField("_vertices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var fieldIndices = type.GetField("_faceIndices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var vertices = (Vector3[])fieldVertices!.GetValue(null)!;
+        var indices = (uint[])fieldIndices!.GetValue(null)!;
+        foreach (var idx in indices)
+            Assert.InRange<uint>(idx, 0, (uint)(vertices.Length - 1));
+    }
 }

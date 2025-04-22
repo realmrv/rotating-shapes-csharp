@@ -79,3 +79,13 @@ rotating-shapes/
         ├── face.frag
         └── face.vert
 ```
+
+## Tests
+
+Unit tests are located in the `RotatingShapes.Tests` project. To run tests:
+
+```sh
+dotnet test
+```
+
+The tests verify the geometry of all shapes (vertex count, etc). You can run and debug tests from your IDE or using the command line.
