@@ -38,6 +38,8 @@ public class Renderer : IDisposable
 
     // Removed Shader source code constants
 
+    private bool _disposed = false;
+
     public Renderer()
     {
         var options = WindowOptions.Default;
@@ -55,10 +57,32 @@ public class Renderer : IDisposable
         _window.Resize += OnResize;
     }
 
+    ~Renderer()
+    {
+        Dispose(false);
+    }
+
     public void Dispose()
     {
-        OnClose(); // Ensure resources are released if Dispose is called explicitly
-        // _window?.Dispose(); // Let Silk.NET handle window disposal
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            // Dispose managed resources
+            OnClose(); // Ensure resources are released if Dispose is called explicitly
+            // _window?.Dispose(); // Let Silk.NET handle window disposal
+        }
+
+        // Free unmanaged resources (if any)
+
+        _disposed = true;
     }
 
     /// <summary>
@@ -91,10 +115,11 @@ public class Renderer : IDisposable
         {
             // Use paths relative to the executable location
             var baseDirectory = AppContext.BaseDirectory;
-            var faceVertPath = Path.Combine(baseDirectory, "Shaders", "face.vert");
-            var faceFragPath = Path.Combine(baseDirectory, "Shaders", "face.frag");
-            var edgeVertPath = Path.Combine(baseDirectory, "Shaders", "edge.vert");
-            var edgeFragPath = Path.Combine(baseDirectory, "Shaders", "edge.frag");
+            const string ShadersDir = "Shaders";
+            var faceVertPath = Path.Combine(baseDirectory, ShadersDir, "face.vert");
+            var faceFragPath = Path.Combine(baseDirectory, ShadersDir, "face.frag");
+            var edgeVertPath = Path.Combine(baseDirectory, ShadersDir, "edge.vert");
+            var edgeFragPath = Path.Combine(baseDirectory, ShadersDir, "edge.frag");
 
             _faceShaderProgram = Shader.LoadFromFile(_gl!, faceVertPath, faceFragPath);
             _edgeShaderProgram = Shader.LoadFromFile(_gl!, edgeVertPath, edgeFragPath);
@@ -118,11 +143,11 @@ public class Renderer : IDisposable
         _shapes.Add(new Octahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!)); // Center
         _shapes.Add(new Cube(_gl!, _faceShaderProgram!, _edgeShaderProgram!)); // Mid-right
         _shapes.Add(new Tetrahedron(_gl!, _faceShaderProgram!, _edgeShaderProgram!)); // Far-right
-        // Removed individual shape creation
+        _shapes.Add(new CompoundFiveTetrahedra(_gl!, _faceShaderProgram!, _edgeShaderProgram!)); // Five Tetrahedra Compound
 
         // Setup initial matrices (View and Projection)
         _viewMatrix =
-            Matrix4x4.CreateLookAt(new Vector3(0.0f, 0.0f, 9.0f), new Vector3(0.0f, 0.0f, 0.0f), Vector3.UnitY);
+            Matrix4x4.CreateLookAt(new Vector3(0.0f, 0.0f, 10.0f), new Vector3(0.0f, 0.0f, 0.0f), Vector3.UnitY);
         SetupProjectionMatrix(_window!.Size);
     }
 

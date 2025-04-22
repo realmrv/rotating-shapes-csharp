@@ -11,7 +11,7 @@ namespace RotatingShapes;
 /// </summary>
 public class Cube : ShapeBase
 {
-    private const float CubeScale = 0.6f; // Adjusted scale
+    private const float CubeScale = 0.9f; // Adjusted scale
     private static readonly Vector3[] _vertices =
     {
         // Front face
@@ -38,7 +38,7 @@ public class Cube : ShapeBase
         0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4,
         0, 4, 1, 5, 2, 6, 3, 7
     };
-    private readonly Vector3 _position = new(1.8f, 0.0f, 0.0f);
+    private readonly Vector3 _position = new(1.8f, -0.5f, 0.0f);
 
     public unsafe Cube(GL gl, Shader faceShader, Shader edgeShader)
         : base(gl, faceShader, edgeShader)

@@ -9,7 +9,7 @@ namespace RotatingShapes;
 /// </summary>
 public class Icosahedron : ShapeBase
 {
-    private const float IcoScale = 0.6f;
+    private const float IcoScale = 0.9f;
     private static readonly float Phi = (1.0f + MathF.Sqrt(5.0f)) / 2.0f;
     private static readonly Vector3[] _vertices =
     {
@@ -29,7 +29,7 @@ public class Icosahedron : ShapeBase
         4, 9, 5, 2, 4, 11, 6, 2, 10, 8, 6, 7, 9, 8, 1
     };
     private static readonly uint[] _edgeIndices;
-    private readonly Vector3 _position = new(-1.8f, 0.0f, 0.0f);
+    private readonly Vector3 _position = new(-1.8f, -0.5f, 0.0f);
 
     static Icosahedron()
     {

@@ -9,7 +9,9 @@ namespace RotatingShapes;
 /// </summary>
 public class Octahedron : ShapeBase
 {
-    private const float OctaScale = 0.6f;
+    private const float OctaScale = 0.9f;
+    private readonly Vector3 _position = new(0.0f, -0.5f, 0.0f);
+
     private static readonly Vector3[] _vertices =
     {
         new(0.0f, OctaScale, 0.0f), // Top (0)
@@ -36,7 +38,6 @@ public class Octahedron : ShapeBase
     {
         0, 1, 0, 2, 0, 3, 0, 4, 1, 3, 3, 2, 2, 4, 4, 1, 5, 1, 5, 2, 5, 3, 5, 4
     };
-    private readonly Vector3 _position = new(0.0f, 0.0f, 0.0f);
 
     public unsafe Octahedron(GL gl, Shader faceShader, Shader edgeShader)
         : base(gl, faceShader, edgeShader)

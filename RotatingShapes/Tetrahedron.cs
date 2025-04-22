@@ -9,7 +9,7 @@ namespace RotatingShapes;
 /// </summary>
 public class Tetrahedron : ShapeBase
 {
-    private const float TetraScale = 0.7f;
+    private const float TetraScale = 0.9f;
     private static readonly Vector3 v0 = Vector3.Normalize(new Vector3(1, 1, 1)) * TetraScale;
     private static readonly Vector3 v1 = Vector3.Normalize(new Vector3(1, -1, -1)) * TetraScale;
     private static readonly Vector3 v2 = Vector3.Normalize(new Vector3(-1, 1, -1)) * TetraScale;
@@ -24,7 +24,7 @@ public class Tetrahedron : ShapeBase
     };
     private static readonly uint[] _faceIndices = { 0, 1, 2, 0, 3, 1, 0, 2, 3, 1, 3, 2 };
     private static readonly uint[] _edgeIndices = { 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3 };
-    private readonly Vector3 _position = new(3.6f, 0.0f, 0.0f);
+    private readonly Vector3 _position = new(3.6f, -0.5f, 0.0f);
 
     public unsafe Tetrahedron(GL gl, Shader faceShader, Shader edgeShader)
         : base(gl, faceShader, edgeShader)

@@ -10,7 +10,7 @@ namespace RotatingShapes;
 public class Dodecahedron : ShapeBase
 {
     // Geometry data for a regular dodecahedron centered at the origin
-    private const float DodecaScale = 0.5f;
+    private const float DodecaScale = 0.7f;
     private static readonly float Phi = (1.0f + MathF.Sqrt(5.0f)) / 2.0f;
     private static readonly float InvPhi = 1.0f / Phi;
     private static readonly Vector3[] _vertices =
@@ -43,7 +43,7 @@ public class Dodecahedron : ShapeBase
     // Indices for drawing edges (lines)
     private static readonly uint[] _edgeIndices;
     // Position offset for rendering
-    private readonly Vector3 _position = new(-3.6f, 0.0f, 0.0f);
+    private readonly Vector3 _position = new(-3.6f, -0.5f, 0.0f);
 
     static Dodecahedron()
     {
