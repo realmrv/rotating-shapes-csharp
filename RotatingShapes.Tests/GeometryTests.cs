@@ -113,4 +113,38 @@ public class GeometryTests
         foreach (var idx in indices)
             Assert.InRange<uint>(idx, 0, (uint)(vertices.Length - 1));
     }
+
+    [Fact]
+    public void Dodecahedron_HsvToRgb_KnownValues()
+    {
+        var type = typeof(Dodecahedron);
+        var method = type.GetMethod("HsvToRgb", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        // Red
+        var red = (Vector4)method!.Invoke(null, new object[] { 0f, 1f, 1f, 1f })!;
+        Assert.True(Math.Abs(red.X - 1f) < 0.01 && Math.Abs(red.Y) < 0.01 && Math.Abs(red.Z) < 0.01);
+        // Green
+        var green = (Vector4)method!.Invoke(null, new object[] { 120f, 1f, 1f, 1f })!;
+        Assert.True(Math.Abs(green.X) < 0.01 && Math.Abs(green.Y - 1f) < 0.01 && Math.Abs(green.Z) < 0.01);
+        // Blue
+        var blue = (Vector4)method!.Invoke(null, new object[] { 240f, 1f, 1f, 1f })!;
+        Assert.True(Math.Abs(blue.X) < 0.01 && Math.Abs(blue.Y) < 0.01 && Math.Abs(blue.Z - 1f) < 0.01);
+    }
+
+    [Fact]
+    public void Dodecahedron_AddEdge_AddsUniqueEdges()
+    {
+        var type = typeof(Dodecahedron);
+        var method = type.GetMethod("AddEdge", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var edges = new HashSet<Tuple<uint, uint>>();
+        method!.Invoke(null, new object[] { edges, 2u, 5u });
+        method!.Invoke(null, new object[] { edges, 5u, 2u }); // Should not add duplicate
+        Assert.Single(edges);
+        Assert.Contains(Tuple.Create(2u, 5u), edges);
+    }
+
+    // [Fact]
+    // public void Shape_Update_ChangesModelMatrix()
+    // {
+    //     // Этот тест требует рефакторинга для мокирования OpenGL зависимостей
+    // }
 }
