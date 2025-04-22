@@ -20,68 +20,76 @@ public class CompoundFiveTetrahedra : ShapeBase
     private static readonly uint[] FaceIndices = { 0, 1, 2, 0, 3, 1, 0, 2, 3, 1, 3, 2 };
     private static readonly uint[] EdgeIndices = { 0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3 };
 
-    private static readonly Vector3[] Vertices = CreateVertices();
-    private static readonly Vector4[] VertexColors = CreateVertexColors();
-    private static readonly uint[] Faces = CreateFaces();
-    private static readonly uint[] Edges = CreateEdges();
-
-    private readonly Vector3 _position = new(0.0f, 2.8f, 0.0f);
-
     // Helper methods for static initialization
-    private static Vector3[] CreateVertices()
+    private static (Vector3[] vertices, Vector4[] colors, uint[] faces, uint[] edges) CreateUniqueVerticesAndColors()
     {
         var rotations = GetFiveTetrahedraRotations();
-        var verts = new List<Vector3>();
+        var uniqueVerts = new List<Vector3>();
+        var uniqueColors = new List<Vector4>();
+        var vertMap = new Dictionary<Vector3, int>(new Vector3EqualityComparer());
+        var faces = new List<uint>();
+        var edges = new List<uint>();
+        // Assign colors based on position for smooth gradient
+        Func<Vector3, Vector4> colorFunc = v =>
+        {
+            // Use spherical coordinates for color mapping
+            var n = Vector3.Normalize(v);
+            float hue = (float)((Math.Atan2(n.Y, n.X) + Math.PI) / (2 * Math.PI));
+            float sat = 0.8f;
+            float val = 0.9f;
+            return HsvToRgb(hue * 360f, sat, val, 0.9f);
+        };
         for (int t = 0; t < 5; t++)
         {
             var rot = rotations[t];
             for (int i = 0; i < 4; i++)
             {
-                verts.Add(Vector3.Transform(BaseTetra[i] * Scale, rot));
+                var v = Vector3.Transform(BaseTetra[i] * Scale, rot);
+                if (!vertMap.TryGetValue(v, out int idx))
+                {
+                    idx = uniqueVerts.Count;
+                    uniqueVerts.Add(v);
+                    uniqueColors.Add(colorFunc(v));
+                    vertMap[v] = idx;
+                }
             }
         }
-        return verts.ToArray();
-    }
-
-    private static Vector4[] CreateVertexColors()
-    {
-        var cols = new List<Vector4>();
-        int totalVerts = 5 * 4;
+        // Now build faces and edges using unique vertex indices
         for (int t = 0; t < 5; t++)
         {
-            int vertOffset = t * 4;
+            var rot = rotations[t];
+            var indices = new int[4];
             for (int i = 0; i < 4; i++)
             {
-                float hue = 360f * (vertOffset + i) / totalVerts;
-                cols.Add(HsvToRgb(hue, 0.8f, 0.9f, 0.9f));
+                var v = Vector3.Transform(BaseTetra[i] * Scale, rot);
+                indices[i] = vertMap[v];
             }
-        }
-        return cols.ToArray();
-    }
-
-    private static uint[] CreateFaces()
-    {
-        var faces = new List<uint>();
-        for (int t = 0; t < 5; t++)
-        {
-            int vertOffset = t * 4;
             for (int i = 0; i < FaceIndices.Length; i++)
-                faces.Add((uint)vertOffset + FaceIndices[i]);
+                faces.Add((uint)indices[FaceIndices[i]]);
+            for (int i = 0; i < EdgeIndices.Length; i++)
+                edges.Add((uint)indices[EdgeIndices[i]]);
         }
-        return faces.ToArray();
+        return (uniqueVerts.ToArray(), uniqueColors.ToArray(), faces.ToArray(), edges.ToArray());
     }
 
-    private static uint[] CreateEdges()
+    // Custom comparer for Vector3 to allow dictionary keying
+    private sealed class Vector3EqualityComparer : IEqualityComparer<Vector3>
     {
-        var edges = new List<uint>();
-        for (int t = 0; t < 5; t++)
-        {
-            int vertOffset = t * 4;
-            for (int i = 0; i < EdgeIndices.Length; i++)
-                edges.Add((uint)vertOffset + EdgeIndices[i]);
-        }
-        return edges.ToArray();
+        public bool Equals(Vector3 a, Vector3 b) => Vector3.DistanceSquared(a, b) < 1e-6f;
+        public int GetHashCode(Vector3 v) => v.GetHashCode();
     }
+
+    private static readonly Vector3[] Vertices;
+    private static readonly Vector4[] VertexColors;
+    private static readonly uint[] Faces;
+    private static readonly uint[] Edges;
+
+    static CompoundFiveTetrahedra()
+    {
+        (Vertices, VertexColors, Faces, Edges) = CreateUniqueVerticesAndColors();
+    }
+
+    private readonly Vector3 _position = new(0.0f, 2.8f, 0.0f);
 
     public unsafe CompoundFiveTetrahedra(GL gl, Shader faceShader, Shader edgeShader)
         : base(gl, faceShader, edgeShader)
@@ -111,7 +119,7 @@ public class CompoundFiveTetrahedra : ShapeBase
         EdgeShader.SetUniform("model", ModelMatrix);
         EdgeShader.SetUniform("view", viewMatrix);
         EdgeShader.SetUniform("projection", projectionMatrix);
-        EdgeShader.SetUniform("edgeColor", new Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+        EdgeShader.SetUniform("edgeColor", new Vector4(0.8f, 0.8f, 0.8f, 1.0f));
         Gl.BindVertexArray(EdgeVao);
         Gl.DrawElements(PrimitiveType.Lines, (uint)Edges.Length, DrawElementsType.UnsignedInt, (void*)0);
         Gl.BindVertexArray(0);
